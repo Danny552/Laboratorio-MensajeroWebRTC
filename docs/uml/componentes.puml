@@ -1,0 +1,45 @@
+@startuml componentes
+title Diagrama de componentes - Mensajero WebRTC
+
+skinparam componentStyle uml2
+skinparam shadowing false
+left to right direction
+
+package "Navegador (cliente web)" {
+  component "Interfaz web\n(index.html + style.css)" as UI
+  component "app.js\n(orquestador)" as APP
+  component "media.js\n(getUserMedia / getDisplayMedia)" as MEDIA
+  component "peer.js\n(RTCPeerConnection)" as PEER
+  component "signaling.js\n(cliente WebSocket)" as SIG
+  component "chat.js" as CHAT
+  component "files.js\n(RTCDataChannel)" as FILES
+}
+
+package "Nodo (contenedor Docker)" {
+  component "Servidor estatico\n(FastAPI StaticFiles)" as STATIC
+  component "ws_handler.py\n(/ws?user=)" as WS
+  component "router.py\n(local o remoto)" as ROUTER
+  component "peer_link.py\n(/ws/peer)" as LINK
+}
+
+component "Nodo par\n(misma imagen)" as OTHER
+
+UI --> APP
+APP --> MEDIA
+APP --> PEER
+APP --> SIG
+APP --> CHAT
+APP --> FILES
+
+MEDIA --> PEER : tracks
+PEER --> SIG : SDP / ICE
+CHAT --> SIG : chat JSON
+FILES --> PEER : DataChannel
+
+UI ..> STATIC : HTTP GET /
+SIG --> WS : WebSocket /ws (JSON)
+WS --> ROUTER
+ROUTER --> LINK
+LINK <--> OTHER : WebSocket /ws/peer
+
+@enduml

@@ -1,0 +1,31 @@
+@startuml despliegue
+title Diagrama de despliegue - Mensajero WebRTC
+skinparam shadowing false
+
+cloud "Internet" as NET {
+  node "STUN publico\nstun.l.google.com:19302" as STUN
+}
+
+node "Equipo anfitrion\n(camara y microfono USB)" as HOST {
+  node "Navegador A\nhttp://localhost:8001" as BA
+  node "Navegador B\nhttp://localhost:8002" as BB
+
+  node "Docker Engine + Compose" as DOCKER {
+    node "red mensajero_net (bridge, DNS interno)" as NETW {
+      node "nodo-a\npython:3.12-slim\nFastAPI + Uvicorn :8000" as NA
+      node "nodo-b\npython:3.12-slim\nFastAPI + Uvicorn :8000" as NB
+      node "caddy (opcional, perfil https)\nTLS interno :443" as CADDY
+      node "coturn (opcional, perfil turn)\n:3478" as TURN
+    }
+  }
+}
+
+BA --> NA : HTTP + WS\nhost 8001 -> 8000
+BB --> NB : HTTP + WS\nhost 8002 -> 8000
+NA <--> NB : WS interno\nws://nodo-b:8000/ws/peer\nws://nodo-a:8000/ws/peer
+BA <..> BB : WebRTC P2P\nSRTP + SCTP/DTLS (UDP efimeros)
+BA ..> STUN : STUN UDP 19302
+BB ..> STUN : STUN UDP 19302
+CADDY ..> NA
+CADDY ..> NB
+@enduml

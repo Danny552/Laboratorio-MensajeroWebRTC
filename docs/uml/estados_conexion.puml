@@ -1,0 +1,14 @@
+@startuml estados_conexion
+title Estados de la conexion entre pares (RTCPeerConnection)
+skinparam shadowing false
+[*] --> Nueva
+Nueva --> Conectando : oferta/respuesta intercambiadas
+Conectando --> Conectada : par de candidatos ICE valido + DTLS
+Conectando --> Fallida : sin ruta (NAT/UDP bloqueado)
+Conectada --> Desconectada : perdida temporal de red
+Desconectada --> Conectada : reinicio de ICE exitoso
+Desconectada --> Fallida : tiempo agotado
+Conectada --> Cerrada : hangup
+Fallida --> Cerrada : limpiar recursos
+Cerrada --> [*]
+@enduml

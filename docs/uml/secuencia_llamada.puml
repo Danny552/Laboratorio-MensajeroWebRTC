@@ -1,0 +1,37 @@
+@startuml secuencia_llamada
+title Secuencia - inicio de una videollamada
+skinparam shadowing false
+participant "Navegador A (ana)" as A
+participant "Nodo A" as NA
+participant "Nodo B" as NB
+participant "Navegador B (beto)" as B
+
+A -> NA : WS /ws?user=ana
+NA --> A : welcome
+B -> NB : WS /ws?user=beto
+NB --> B : welcome
+NA <-> NB : presence (por /ws/peer)
+
+A -> A : getUserMedia(); addTrack(); createOffer(); setLocalDescription()
+A -> NA : offer {to: beto, sdp}
+NA -> NB : offer (reenvio entre nodos)
+NB -> B : offer {from: ana, sdp}
+B -> B : setRemoteDescription(); getUserMedia(); createAnswer(); setLocalDescription()
+B -> NB : answer {to: ana, sdp}
+NB -> NA : answer (reenvio)
+NA -> A : answer
+A -> A : setRemoteDescription(answer)
+
+group Candidatos ICE (trickle), en ambos sentidos
+  A -> NA : ice {to: beto, candidate}
+  NA -> NB : ice
+  NB -> B : ice
+  B -> NB : ice {to: ana, candidate}
+  NB -> NA : ice
+  NA -> A : ice
+end
+
+A <-> B : verificaciones ICE (STUN) -> DTLS -> SRTP (audio y video P2P)
+B -> B : ontrack -> mostrar video remoto
+A -> A : ontrack -> mostrar video remoto
+@enduml

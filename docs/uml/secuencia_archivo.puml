@@ -1,0 +1,26 @@
+@startuml secuencia_archivo
+title Secuencia - envio de un archivo por fragmentos
+skinparam shadowing false
+participant "Emisor (files.js + UI)" as E
+participant "RTCDataChannel 'files'\n(SCTP/DTLS, confiable, ordenado)" as C
+participant "Receptor (files.js + UI)" as R
+
+E -> E : calcular SHA-256 (crypto.subtle.digest)
+E -> C : send(meta JSON {id, name, size, mime, sha256})
+C -> R : onmessage(meta)
+R -> R : preparar fragmentos; barra 0 %
+
+loop mientras queden bytes
+  E -> E : si bufferedAmount > 1 MiB, esperar 'bufferedamountlow'
+  E -> C : send(fragmento de 16 KiB)
+  C -> R : onmessage(fragmento)
+  R -> R : acumular; progreso = recibido / size
+end
+
+E -> C : send(JSON {type: 'eof', id})
+C -> R : onmessage(eof)
+R -> R : ensamblar Blob; comparar tamano y SHA-256 con meta
+R --> C : send(ack {id, ok})
+C --> E : onmessage(ack)
+E -> E : barra 100 % o error visible
+@enduml

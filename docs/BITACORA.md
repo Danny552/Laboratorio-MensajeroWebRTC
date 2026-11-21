@@ -18,9 +18,12 @@ Daniel Alejandro Henao 1114150552 · Plataforma: Docker + Compose · Lenguaje: P
 - Diagramas UML (componentes, despliegue, secuencias) y verificación de fuentes.
 - Redacción final del informe.
 
+## Sesión 4 21-11-2026 · 5h
+
+- Se empezó la implementación de las funciones
+- Dudas sobre la implementación sobre docker compose
+- Lectura rigurosa y configuración del mismo
 
 
 Se usó Claude AI en la Fase 1 para:
-- proponer la estructura del informe
-- redactar un primer borrador del informe y de los diagramas 
 - sugerir fuentes (RFC, W3C, MDN, documentación de Docker).

@@ -1,0 +1,37 @@
+# Dos nodos de señalización que se encuentran por nombre en la red mensajero_net.
+x-nodo: &nodo
+  build: .
+  restart: unless-stopped
+  networks: [mensajero_net]
+  healthcheck:
+    test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+    interval: 10s
+    timeout: 3s
+    retries: 3
+
+services:
+  nodo-a:
+    <<: *nodo
+    container_name: nodo-a
+    environment:
+      NODE_NAME: nodo-a
+      PEER_URL: ws://nodo-b:8000/ws/peer   # el otro nodo, por nombre de servicio
+      PEER_TOKEN: ${PEER_TOKEN:-dev-secret}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    ports:
+      - "${PORT_A:-8001}:8000"
+
+  nodo-b:
+    <<: *nodo
+    container_name: nodo-b
+    environment:
+      NODE_NAME: nodo-b
+      PEER_URL: ws://nodo-a:8000/ws/peer
+      PEER_TOKEN: ${PEER_TOKEN:-dev-secret}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    ports:
+      - "${PORT_B:-8002}:8000"
+
+networks:
+  mensajero_net:
+    driver: bridge

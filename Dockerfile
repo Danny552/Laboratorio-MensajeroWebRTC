@@ -11,7 +11,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY app ./app
 COPY static ./static
 
-RUN useradd --create-home appuser
+# Asegura que cualquier usuario pueda leer el código (COPY conserva los permisos del anfitrión)
+RUN chmod -R a+rX /app \
+    && useradd --create-home appuser
 USER appuser
 
 EXPOSE 8000

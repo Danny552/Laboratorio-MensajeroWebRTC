@@ -9,7 +9,7 @@ en una red Docker y se reenvían los mensajes de sus usuarios. Informe de invest
 
 ## Ejecutar
 ```bash
-cp .env.example .env        # opcional: cambia puertos o PEER_TOKEN
+cp .env.example .env
 docker compose up --build
 ```
 Puertos en el anfitrión: **8001** → nodo-a, **8002** → nodo-b (dentro de la red, ambos escuchan en 8000 y se ven como `nodo-a:8000` / `nodo-b:8000`).
@@ -20,19 +20,19 @@ Puertos en el anfitrión: **8001** → nodo-a, **8002** → nodo-b (dentro de la
    curl http://localhost:8001/status
    curl http://localhost:8002/status
    ```
-2. **Demostración automática** (ana en nodo-a y beto en nodo-b):
+2. **Demostración automática** (Ana en nodo-a y Dani en nodo-b):
    ```bash
    pip install websockets
    python scripts/demo.py
    ```
-3. **A mano, con dos terminales** (ana en nodo-a, beto en nodo-b):
+3. **A mano, con dos terminales** (Ana en nodo-a, Dani en nodo-b):
    ```bash
-   python scripts/cliente.py --user ana  --url ws://localhost:8001
-   python scripts/cliente.py --user beto --url ws://localhost:8002
-   # en la de ana escribe:  @beto hola
+   python scripts/cliente.py --user Ana  --url ws://localhost:8001
+   python scripts/cliente.py --user Dani --url ws://localhost:8002
+   # en la de Ana escribe:  @Dani hola
    ```
-   O con wscat: `wscat -c "ws://localhost:8002/ws?user=beto"` y enviar
-   `{"type":"chat","to":"ana","payload":{"text":"hola"}}`.
+   O con wscat: `wscat -c "ws://localhost:8002/ws?user=Dani"` y enviar
+   `{"type":"chat","to":"Ana","payload":{"text":"hola"}}`.
 4. **Logs de ambos nodos** (muestran cada mensaje, si fue local o reenviado):
    ```bash
    docker compose logs -f nodo-a nodo-b
